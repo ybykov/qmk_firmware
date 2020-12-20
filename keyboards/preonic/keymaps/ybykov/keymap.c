@@ -23,7 +23,6 @@ enum preonic_layers {
   _RU,
   _LOWER,
   _RAISE,
-  _I3,
   _ADJUST
 };
 
@@ -31,80 +30,99 @@ enum preonic_keycodes {
   COLEMAK = SAFE_RANGE,
   QWERTY,
   RU,
-  LOWER,
-  RAISE,
-  I3,
-  CTRL_Z,
-  CTRL_X,
-  CTRL_C,
-  CTRL_V,
   EMAIL_1,
   EMAIL_2,
   EMAIL_3,
-  GUI_1,
-  GUI_2,
-  GUI_3,
-  GUI_4,
-  GUI_5,
-  GUI_6,
-  GUI_7,
-  GUI_8,
-  GUI_9,
-  GUI_0,
-  SH_GUI_1,
-  SH_GUI_2,
-  SH_GUI_3,
-  SH_GUI_4,
-  SH_GUI_5,
-  SH_GUI_6,
-  SH_GUI_7,
-  SH_GUI_8,
-  SH_GUI_9,
-  SH_GUI_0
 };
+
+#define LOWER MO(_LOWER)
+#define RAISE MO(_RAISE)
+
+/* #define UND_LGU MT(MOD_LGUI, KC_UNDS) */
+#define PLS_LCT MT(MOD_LCTL, KC_PPLS)
+#define EQL_LCT MT(MOD_LCTL, KC_PEQL)
+#define EQL_LAL MT(MOD_LALT, KC_EQL)
+#define NML_LGU MT(MOD_LGUI, KC_NLCK)
+#define MIN_RCT MT(MOD_RCTL, KC_MINS)
+#define F11_RSU MT(MOD_RGUI, KC_F11)
+
+#define ESC_RSE LT(_RAISE, KC_ESC)
+#define SPC_RSE LT(_RAISE, KC_SPC)
+#define DEL_LWR LT(_LOWER, KC_DEL)
+#define BSPC_LWR LT(_LOWER, KC_BSPC)
+
+// tapdance keycodes https://github.com/qmk/qmk_firmware/blob/master/docs/feature_tap_dance.md#example-5-using-tap-dance-for-advanced-mod-tap-and-layer-tap-keys
+enum td_keycodes {
+  UND_LGU // `LGUI` when held, `_` when tapped.
+};
+
+// define a type containing as many tapdance states as you need
+typedef enum {
+  SINGLE_TAP,
+  SINGLE_HOLD,
+  DOUBLE_SINGLE_TAP
+} td_state_t;
+
+// create a global instance of the tapdance state type
+static td_state_t td_state;
+
+// declare your tapdance functions:
+
+// function to determine the current tapdance state
+int cur_dance (qk_tap_dance_state_t *state);
+
+// `finished` and `reset` functions for each tapdance keycode
+void altlp_finished (qk_tap_dance_state_t *state, void *user_data);
+void altlp_reset (qk_tap_dance_state_t *state, void *user_data);
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /* Colemak
  * ,-----------------------------------------------------------------------------------.
- * |   `  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |   0  | Del  |
+ * |   `  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |   0  |  ]   |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | Tab  |   Q  |   W  |   F  |   P  |   G  |   J  |   L  |   U  |   Y  |   ;  | Bspc |
+ * | Super|   Q  |   W  |   F  |   P  |   G  |   J  |   L  |   U  |   Y  |   ;  | Super|
+ * |   `  |      |      |      |      |      |      |      |      |      |      |  [   |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
- * | Esc  |   A  |   R  |   S  |   T  |   D  |   H  |   N  |   E  |   I  |   O  |  "   |
+ * | Ctrl |   A  |   R  |   S  |   T  |   D  |   H  |   N  |   E  |   I  |   O  | Ctrl |
+ * |      |      |      |      |      |      |      |      |      |      |      |  '   |
  * |------+------+------+------+------+------|------+------+------+------+------+------|
- * |  I3  |   Z  |   X  |   C  |   V  |   B  |   K  |   M  |   ,  |   .  |   /  |Shift |
+ * | Alt  |   Z  |   X  |   C  |   V  |   B  |   K  |   M  |   ,  |   .  |   /  | Alt  |
+ * |      |      |      |      |      |      |      |      |      |      |      |  \   |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | Ctrl | Alt  | GUI  | Shift|Raise | Lower| BSpc | Space|Enter | AltGr|  RU  |Clmk  |
+ * |      |      |      | Shift|Raise | Lower| BSpc | Space|Enter |      |  RU  |Clmk  |
  * `-----------------------------------------------------------------------------------'
  */
 [_COLEMAK] = LAYOUT_preonic_grid( \
-  KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_DEL, \
-  KC_TAB,  KC_Q,    KC_W,    KC_F,    KC_P,    KC_G,    KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_BSPC,  \
-  KC_ESC,  KC_A,    KC_R,    KC_S,    KC_T,    KC_D,    KC_H,    KC_N,    KC_E,    KC_I,    KC_O,    KC_QUOT, \
-  I3,      KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,  \
-  KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, RAISE,   LOWER,   KC_BSPC, KC_SPC,  KC_ENT,  KC_RALT, RU,      COLEMAK  \
+  KC_GRV,         KC_1,    KC_2,    KC_3,           KC_4,    KC_5,    KC_6,     KC_7,    KC_8,           KC_9,    KC_0,    KC_RBRACKET, \
+  LGUI_T(KC_GRV), KC_Q,    KC_W,    KC_F,           KC_P,    KC_G,    KC_J,     KC_L,    KC_U,           KC_Y,    KC_SCLN, RGUI_T(KC_LBRACKET), \
+  KC_LCTL,        KC_A,    KC_R,    KC_S,           KC_T,    KC_D,    KC_H,     KC_N,    KC_E,           KC_I,    KC_O,    RCTL_T(KC_QUOT), \
+  KC_LALT,        KC_Z,    KC_X,    KC_C,           KC_V,    KC_B,    KC_K,     KC_M,    KC_COMM,        KC_DOT,  KC_SLSH, RALT_T(KC_BSLASH),  \
+  _______,        _______, _______, LSFT_T(KC_TAB), ESC_RSE, DEL_LWR, BSPC_LWR, SPC_RSE, RSFT_T(KC_ENT), _______, RU,      COLEMAK  \
 ),
 
 
 /* Qwerty
  * ,-----------------------------------------------------------------------------------.
- * |   `  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |   0  | Del  |
+ * |   `  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |   0  |  ]   |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | Tab  |   Q  |   W  |   E  |   R  |   T  |   Y  |   U  |   I  |   O  |   P  | Bspc |
+ * | Super|   Q  |   W  |   E  |   R  |   T  |   Y  |   U  |   I  |   O  |   P  | Super|
+ * |   `  |      |      |      |      |      |      |      |      |      |      |  [   |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
- * | Esc  |   A  |   S  |   D  |   F  |   G  |   H  |   J  |   K  |   L  |   ;  |  "   |
+ * | Ctrl |   A  |   S  |   D  |   F  |   G  |   H  |   J  |   K  |   L  |   ;  | Ctrl |
+ * |      |      |      |      |      |      |      |      |      |      |      |  '   |
  * |------+------+------+------+------+------|------+------+------+------+------+------|
- * |  I3  |   Z  |   X  |   C  |   V  |   B  |   N  |   M  |   ,  |   .  |   /  |Shift |
+ * | Alt  |   Z  |   X  |   C  |   V  |   B  |   N  |   M  |   ,  |   .  |   /  | Alt  |
+ * |      |      |      |      |      |      |      |      |      |      |      |  \   |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | Ctrl | Alt  | GUI  | Shift|Raise | Lower| BSpc | Space|Enter | AltGr|  RU  |Clmk  |
+ * |      |      |      | Shift|Raise | Lower| BSpc | Space|Enter |      |  RU  |Clmk  |
  * `-----------------------------------------------------------------------------------'
  */
 [_QWERTY] = LAYOUT_preonic_grid( \
-  KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_DEL, \
-  KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,  \
-  KC_ESC,  KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, \
-  _______, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,  \
+  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,  \
+  _______, KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    RGUI_T(KC_LBRACKET),  \
+  _______, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, RCTL_T(KC_QUOT), \
+  _______, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, RALT_T(KC_BSLASH),  \
   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______  \
 ),
 
@@ -131,44 +149,50 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /* Lower
  * ,-----------------------------------------------------------------------------------.
- * |   ~  |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |  F7  |  F8  |  F9  | F10  |      |
+ * |   `  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |   0  |  F12 |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
- * |   ~  |   !  |   @  |   #  |   $  |   %  |   ^  |   &  |   *  |   (  |   )  |      |
+ * | Super|  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |  F7  |  F8  |  F9  | F10  | Super|
+ * |   _  |      |      |      |      |      |      |      |      |      |      |  F11 |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
- * |      |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |   0  |      |
+ * | Ctrl |   !  |   @  |   #  |   $  |   %  |   ^  |   &  |   *  |   (  |   )  | Ctrl |
+ * |   +  |      |      |      |      |      |      |      |      |      |      |  -   |
  * |------+------+------+------+------+------|------+------+------+------+------+------|
- * |      | ctrlZ| ctrlX| ctrlC| ctrlV|      |      |email1|email2|email3|      |      |
- * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |      |      |      |      |      | Del  |      |      |      |      |QWERTY|
+ * | Alt  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |   0  | Alt  |
+ * |   =  |      |      |      |      |      |      |      |      |      |      |  \   |
+ * |------+------+------+------+------+-------------+------+------+------+------+------|
+ * |      |      |      |      |      |      |      |      |      |      |      |QWERTY|
  * `-----------------------------------------------------------------------------------'
  */
 [_LOWER] = LAYOUT_preonic_grid( \
-  KC_TILD, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  _______, \
-  KC_TILD, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, _______, \
-  _______, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    _______, \
-  _______, CTRL_Z,  CTRL_X,  CTRL_C,  CTRL_V,  _______, _______, EMAIL_1, EMAIL_2, EMAIL_3, _______, _______, \
-  _______, _______, _______, _______, _______, _______, KC_DEL,  _______, _______, _______, _______, QWERTY  \
+  KC_UNDS, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_F12, \
+  TD(UND_LGU), KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  F11_RSU,
+  PLS_LCT, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, MIN_RCT, \
+  EQL_LAL, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    _______, \
+  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, QWERTY  \
 ),
 
 /* Raise
  * ,-----------------------------------------------------------------------------------.
- * |   `  | Mute | Vol- | Vol+ | Br-  | Br+  |      |      |      |      |      |      |
+ * |   `  | Mute | Vol- | Vol+ | Br-  | Br+  |      |EMAIL1|EMAIL2|EMAIL3|      |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |   `  |   _  |   +  |   {  |   }  |  |   |      | PgUp |  Up  | PgDwn|      |      |
+ * |Super |   /  |   7  |   8  |   9  |  -   | Vol+ | PgUp |  Up  | PgDwn|PrnScr|Super |
+ * |NumLk |      |      |      |      |      |      |      |      |      |      |  [   |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
- * |      |   -  |   =  |   [  |   ]  |  \   |      | Left | Down | Right|      |
+ * | Ctrl |   *  |   4  |   5  |   6  |  +   | Vol- | Left | Down | Right|Caps  | Ctrl |
+ * |  =   |      |      |      |      |      |      |      |      |      |      |  '   |
  * |------+------+------+------+------+------|------+------+------+------+------+------|
- * |      | ctrlZ| ctrlX| ctrlC| ctrlV|      |      |      |      |      |      |      |
+ * | Alt  |   0  |   1  |   2  |   3  |  .   | Mute | Home | End  |Insert|Scroll| Alt  |
+ * |      |      |      |      |      |      |      |      |      |      |      |  \   |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |      |      |      |      |      | Del  |      |      |      |      |QWERTY|
+ * |      |      |      |      |      |      |      |      |      |      |      |QWERTY|
  * `-----------------------------------------------------------------------------------'
  */
 [_RAISE] = LAYOUT_preonic_grid( \
-  KC_GRV,  KC_MUTE, KC_VOLD, KC_VOLU, KC_BRID, KC_BRIU, _______, _______, _______, _______, _______, _______, \
-  KC_GRV,  KC_UNDS, KC_PLUS, KC_LCBR, KC_RCBR, KC_PIPE, _______, KC_PGUP, KC_UP,   KC_PGDN, _______, _______, \
-  _______, KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC, KC_BSLS, _______, KC_LEFT, KC_DOWN, KC_RGHT, _______, _______, \
-  _______, CTRL_Z,  CTRL_X,  CTRL_C,  CTRL_V,  _______, _______, _______, _______, _______, _______, _______, \
-  _______, _______, _______, _______, _______, _______, KC_DEL,  _______, _______, _______, _______, QWERTY  \
+  _______, KC_MUTE, KC_VOLD, KC_VOLU, KC_BRID, KC_BRIU, _______, EMAIL_1, EMAIL_2, EMAIL_3, _______, _______, \
+  NML_LGU, KC_PSLS, KC_P7,   KC_P8,   KC_P9,   KC_PMNS, KC_VOLU, KC_PGUP, KC_UP,   KC_PGDN, KC_PSCR, _______, \
+  EQL_LCT, KC_PAST, KC_P4,   KC_P5,   KC_P6,   KC_PPLS, KC_VOLD, KC_LEFT, KC_DOWN, KC_RGHT, KC_CAPS, _______, \
+  _______, KC_P0,   KC_P1,   KC_P2,   KC_P3,   KC_PCMM, KC_MUTE, KC_HOME, KC_END,  KC_INS,  KC_SLCK, _______, \
+  _______, _______, _______, _______, _______, _______, _______,  _______, _______, _______, _______, QWERTY  \
 ),
 
 /* ADJUST (LOWER + RAISE)
@@ -185,35 +209,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_ADJUST] = LAYOUT_preonic_grid( \
-  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  \
+  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12, \
   _______, RESET,   DEBUG,   _______, _______, _______, _______, TERM_ON, TERM_OFF,_______, _______, KC_DEL,  \
   _______, _______, MU_MOD,  AU_ON,   AU_OFF,  AG_NORM, AG_SWAP, QWERTY,  COLEMAK, _______, _______, _______, \
   _______, MUV_DE,  MUV_IN,  MU_ON,   MU_OFF,  MI_ON,   MI_OFF,  _______, _______, _______, _______, _______, \
   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______  \
-),
-
-/* i3
- * ,-----------------------------------------------------------------------------------.
- * |      |      |      |      |      |      |      |      |      |      |      |      |
- * |------+------+------+------+------+-------------+------+------+------+------+------|
- * |      |      |      |      |      |      |      |      |      |      |      |      |
- * |------+------+------+------+------+-------------+------+------+------+------+------|
- * |      |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |   0  |      |
- * |------+------+------+------+------+------|------+------+------+------+------+------|
- * |      |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |   0  |      |
- * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |      |      |      |      |      |      |      |      |      |      |      |
- * `-----------------------------------------------------------------------------------'
- */
-[_I3] = LAYOUT_preonic_grid( \
-  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
-  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
-  _______, GUI_1  , GUI_2  , GUI_3  , GUI_4  , GUI_5  , GUI_6  , GUI_7  , GUI_8  , GUI_9  , GUI_0  , _______, \
-  _______,SH_GUI_1,SH_GUI_2,SH_GUI_3,SH_GUI_4,SH_GUI_5,SH_GUI_6,SH_GUI_7,SH_GUI_8,SH_GUI_9,SH_GUI_0, _______, \
-  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______  \
 )
-
 };
+
+
+uint32_t layer_state_set_user(uint32_t state) {
+  return update_tri_layer_state(state, _LOWER, _RAISE, _ADJUST);
+}
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
@@ -226,7 +233,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           break;
         case RU:
           if (record->event.pressed) {
-            set_single_persistent_default_layer(_RU);
+            set_single_persistent_default_layer(_QWERTY);
             SEND_STRING(SS_TAP(X_F12));
           }
           return false;
@@ -235,150 +242,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           if (record->event.pressed) {
             set_single_persistent_default_layer(_COLEMAK);
             SEND_STRING(SS_TAP(X_F11));
-          }
-          return false;
-          break;
-        case CTRL_Z:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LCTRL("z"));
-          }
-          return false;
-          break;
-        case CTRL_X:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LCTRL("x"));
-          }
-          return false;
-          break;
-        case CTRL_C:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LCTRL("c"));
-          }
-          return false;
-          break;
-        case CTRL_V:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LCTRL("v"));
-          }
-          return false;
-          break;
-        case GUI_1:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI("1"));
-          }
-          return false;
-          break;
-        case GUI_2:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI("2"));
-          }
-          return false;
-          break;
-        case GUI_3:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI("3"));
-          }
-          return false;
-          break;
-        case GUI_4:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI("4"));
-          }
-          return false;
-          break;
-        case GUI_5:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI("5"));
-          }
-          return false;
-          break;
-        case GUI_6:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI("6"));
-          }
-          return false;
-          break;
-        case GUI_7:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI("7"));
-          }
-          return false;
-          break;
-        case GUI_8:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI("8"));
-          }
-          return false;
-          break;
-        case GUI_9:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI("9"));
-          }
-          return false;
-          break;
-        case GUI_0:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI("0"));
-          }
-          return false;
-          break;
-        case SH_GUI_1:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI(SS_LSFT("1")));
-          }
-          return false;
-          break;
-        case SH_GUI_2:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI(SS_LSFT("2")));
-          }
-          return false;
-          break;
-        case SH_GUI_3:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI(SS_LSFT("3")));
-          }
-          return false;
-          break;
-        case SH_GUI_4:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI(SS_LSFT("4")));
-          }
-          return false;
-          break;
-        case SH_GUI_5:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI(SS_LSFT("5")));
-          }
-          return false;
-          break;
-        case SH_GUI_6:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI(SS_LSFT("6")));
-          }
-          return false;
-          break;
-        case SH_GUI_7:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI(SS_LSFT("7")));
-          }
-          return false;
-          break;
-        case SH_GUI_8:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI(SS_LSFT("8")));
-          }
-          return false;
-          break;
-        case SH_GUI_9:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI(SS_LSFT("9")));
-          }
-          return false;
-          break;
-        case SH_GUI_0:
-          if (record->event.pressed) {
-            SEND_STRING(SS_LGUI(SS_LSFT("0")));
           }
           return false;
           break;
@@ -400,37 +263,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           }
           return false;
           break;
-        case LOWER:
-          if (record->event.pressed) {
-            layer_on(_LOWER);
-            update_tri_layer(_LOWER, _RAISE, _ADJUST);
-          } else {
-            layer_off(_LOWER);
-            update_tri_layer(_LOWER, _RAISE, _ADJUST);
-          }
-          return false;
-          break;
-        case RAISE:
-          if (record->event.pressed) {
-            layer_on(_RAISE);
-            update_tri_layer(_LOWER, _RAISE, _ADJUST);
-          } else {
-            layer_off(_RAISE);
-            update_tri_layer(_LOWER, _RAISE, _ADJUST);
-          }
-          return false;
-          break;
-        case I3:
-          if (record->event.pressed) {
-            layer_on(_I3);
-          } else {
-            layer_off(_I3);
-          }
-          return false;
-          break;
       }
     return true;
 };
+
 
 bool muse_mode = false;
 uint8_t last_muse_note = 0;
@@ -510,3 +346,48 @@ bool music_mask_user(uint16_t keycode) {
       return true;
   }
 }
+
+// determine the tapdance state to return
+int cur_dance (qk_tap_dance_state_t *state) {
+  if (state->count == 1) {
+    if (state->interrupted || !state->pressed) { return SINGLE_TAP; }
+    else { return SINGLE_HOLD; }
+  }
+  if (state->count == 2) { return DOUBLE_SINGLE_TAP; }
+  else { return 3; } // any number higher than the maximum state value you return above
+}
+
+// handle the possible states for each tapdance keycode you define:
+
+void guiund_finished (qk_tap_dance_state_t *state, void *user_data) {
+  td_state = cur_dance(state);
+  switch (td_state) {
+    case SINGLE_TAP:
+      register_code16(KC_UNDS);
+      break;
+    case SINGLE_HOLD:
+      register_mods(MOD_BIT(KC_LGUI)); // for a layer-tap key, use `layer_on(_MY_LAYER)` here
+      break;
+    case DOUBLE_SINGLE_TAP: // allow nesting of 2 `__` within tapping term
+      tap_code16(KC_UNDS);
+      register_code16(KC_UNDS);
+  }
+}
+
+void guiund_reset (qk_tap_dance_state_t *state, void *user_data) {
+  switch (td_state) {
+    case SINGLE_TAP:
+      unregister_code16(KC_UNDS);
+      break;
+    case SINGLE_HOLD:
+      unregister_mods(MOD_BIT(KC_LGUI)); // for a layer-tap key, use `layer_off(_MY_LAYER)` here
+      break;
+    case DOUBLE_SINGLE_TAP:
+      unregister_code16(KC_UNDS);
+  }
+}
+
+// define `ACTION_TAP_DANCE_FN_ADVANCED()` for each tapdance keycode, passing in `finished` and `reset` functions
+qk_tap_dance_action_t tap_dance_actions[] = {
+  [UND_LGU] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, guiund_finished, guiund_reset)
+};
